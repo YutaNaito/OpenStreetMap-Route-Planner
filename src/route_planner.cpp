@@ -34,17 +34,11 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
   current_node->FindNeighbors();
-//   for (int i = 0; i < current_node->neighbors.size(); i++){
-//     current_node->neighbors[i]->parent = this->start_node;
-// 	current_node->neighbors[i]->g_value = this->start_node->distance(*current_node->neighbors[i]);
-//     current_node->neighbors[i]->h_value = CalculateHValue(current_node->neighbors[i]);
-//     current_node->neighbors[i]->visited = true;
-//     this->open_list.push_back(current_node->neighbors[i]);
-//   }
+
   for (auto *neighbor : current_node->neighbors){
     neighbor->visited = true;
     neighbor->parent = current_node;
-    neighbor->g_value = current_node->distance(*neighbor);
+    neighbor->g_value = current_node->g_value + current_node->distance(*neighbor);
     neighbor->h_value = CalculateHValue(neighbor);
     this->open_list.push_back(neighbor);
   }
@@ -61,7 +55,7 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 RouteModel::Node *RoutePlanner::NextNode() {
   std::sort(this->open_list.begin(), this->open_list.end(), 
             [](const auto &nodeA, const auto &nodeB){
-              return (nodeA->g_value + nodeA->h_value) < (nodeB->g_value + nodeB->h_value);
+              return (nodeA->g_value + nodeA->h_value) > (nodeB->g_value + nodeB->h_value);
   });
   auto *next_node = this->open_list.back();
   this->open_list.pop_back();
@@ -111,7 +105,6 @@ void RoutePlanner::AStarSearch() {
     // TODO: Implement your solution here.
     this->start_node->visited = true;
     current_node = this->start_node;
-    // current_node->h_value = CalculateHValue(current_node);
     this->open_list.push_back(current_node);
   
     while(this->open_list.size() > 0 && current_node != this->end_node){
