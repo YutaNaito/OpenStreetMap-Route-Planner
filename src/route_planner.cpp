@@ -38,6 +38,19 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
   }
 }
 
+/**
+ * Compare the f_value of two nodes
+ * 
+ * @param first  Pointer to the first  Node to compare
+ * @param second Pointer to the second Node to compare
+ * 
+ * @return True if the first f_value is less than second f_value
+*/
+bool RoutePlanner::Compare(const RouteModel::Node *first, const RouteModel::Node *second) {
+    // f_value is determined by adding g_value to h_value
+    return (first->g_value + first->h_value) < (second->g_value + second->h_value);
+}
+
 
 // NextNode sorts the open list and return the next node.
 // - Sort the open_list according to the sum of the h value and g value.
@@ -45,12 +58,15 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Remove that node from the open_list.
 // - Return the pointer.
 RouteModel::Node *RoutePlanner::NextNode() {
-  std::sort(this->open_list.begin(), this->open_list.end(), 
-            [](const auto &nodeA, const auto &nodeB){
-              return (nodeA->g_value + nodeA->h_value) > (nodeB->g_value + nodeB->h_value);
-  });
-  auto *next_node = this->open_list.back();
-  this->open_list.pop_back();
+
+  // Sort the open_list according to the sum of the h value and g value.
+  std::sort(open_list.begin(), open_list.end(), Compare);
+
+  // Temporary variable to hold the position of the nearest node
+  auto *next_node = open_list.front();
+
+  // Remove node from open nodes to avoid revisiting it
+  open_list.erase(open_list.begin());
   
   return next_node;
 }
