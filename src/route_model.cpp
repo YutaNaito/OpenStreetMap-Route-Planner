@@ -1,11 +1,13 @@
 #include "route_model.h"
 #include <iostream>
+#include <vector>
 
 RouteModel::RouteModel(const std::vector<std::byte> &xml) : Model(xml) {
     // Create RouteModel nodes.
     int counter = 0;
-    for (Model::Node node : this->Nodes()) {
-        m_Nodes.emplace_back(Node(counter, this, node));
+    std::vector<Model::Node> vectorGivenByThisNodes = this-> Nodes();
+    for (int i = 0; i < vectorGivenByThisNodes.size(); i++) {
+        m_Nodes.emplace_back(Node(counter, this, vectorGivenByThisNodes[i]));
         counter++;
     }
     CreateNodeToRoadHashmap();
